@@ -51,12 +51,16 @@ char * readline(FILE * f){
 // --------
 
 //Lets define the CUDA fonction
-__global__ void gpu(HASH find, HASH* hash_tab, TITLES* title_tab){
-	int index = blockIdx.x * blockDim.x + threadIdx.x;
+__global__ void gpu(HASH* shadow_tab, HASH* hash_tab, TITLES* title_tab){
+	int x = blockIdx.x * blockDim.x + threadIdx.x;
+	int y = blockIdx.y * blockDim.y + threadIdx.y;
 	int stride = blockDim.x * gridDim.x;
-	for (int i = index; i < 22740; i += stride){
-		if(same_hash(&find, &hash_tab[i])){
-			printf("FINDED - %s\n", (*title_tab)[i]);
+	int i, j;
+	for (i = x; i < 22740; i += stride){
+		for (j = y; j < 22740; j += stride){
+			if(same_hash(&shadow_tab[i], &hash_tab[j])){
+				printf("FINDED - %s\n", (*title_tab)[j]);
+			}
 		}
 	}
 }
@@ -93,25 +97,24 @@ int main(int argc, char *argv[]) {
 		currline = readline(ds);
 	}
 	fclose(ds);
-
+	
+	//Store each hash to find in an array
+	HASH* shadow_tab; cudaMallocManaged(&shadow_tab, sizeof(HASH)*22740);
 	ds = openFile(sha_file);
 	currline = readline(ds);
+	nbLine = 0;
 	while (currline!=NULL)
 	{
-		
-		gpu<<<128, 128>>>(*((HASH*)currline), hash_tab, title_tab);
-		// For each line, check if the hash of the dict is the same
-		//int tmpnbLine = nbLine;
-		//while (tmpnbLine>0)
-		//{
-			//tmpnbLine--;
-			//if(same_hash((HASH*)currline, &hash_tab[tmpnbLine])){
-				//printf("FINDED - %s\n", (*title_tab)[tmpnbLine]);
-			//}
-		//}
+		memcpy(&shadow_tab[nbLine], currline, sizeof(HASH));	
+		nbLine++;		
 
 		currline = readline(ds);
 	}
+
+	//Start the GPU
+	dim3 dimBlock(16, 16);
+	dim3 dimGrid(16, 16);
+	gpu<<<dimGrid, dimBlock>>>(shadow_tab, hash_tab, title_tab);
 	cudaDeviceSynchronize();
 	fclose(ds);
 	
