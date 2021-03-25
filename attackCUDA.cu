@@ -20,7 +20,7 @@ typedef struct {
 } HASH;
 
 //Check if two HASH is the same
-int same_hash(HASH* one, HASH* two){
+__device__ int same_hash(HASH* one, HASH* two){
 	return one->p1==two->p1 &&
 	       one->p2==two->p2 &&
 	       one->p3==two->p3 &&
@@ -50,6 +50,17 @@ char * readline(FILE * f){
 }
 // --------
 
+//Lets define the CUDA fonction
+__global__ void gpu(HASH find, HASH* hash_tab, TITLES* title_tab){
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int stride = blockDim.x * gridDim.x;
+	for (int i = index; i < 22740; i += stride){
+		if(same_hash(&find, &hash_tab[i])){
+			printf("FINDED - %s\n", (*title_tab)[i]);
+		}
+	}
+}
+
 
 // The crack executable take the dict file and the hash in parameter
 // ./crack dict.txt shadow.txt
@@ -64,8 +75,8 @@ int main(int argc, char *argv[]) {
 	//}
 	
 	//Store each line in an array
-	TITLES* title_tab = malloc(sizeof(TITLES));
-	HASH* hash_tab = malloc(sizeof(HASH)*22740);
+	TITLES* title_tab; cudaMallocManaged(&title_tab, sizeof(TITLES));
+	HASH* hash_tab; cudaMallocManaged(&hash_tab, sizeof(HASH)*22740);
 	
 	FILE * ds = openFile(dict_file);
 	char *currline = readline(ds);
@@ -88,19 +99,20 @@ int main(int argc, char *argv[]) {
 	while (currline!=NULL)
 	{
 		
+		gpu<<<128, 128>>>(*((HASH*)currline), hash_tab, title_tab);
 		// For each line, check if the hash of the dict is the same
-		int tmpnbLine = nbLine;
-		while (tmpnbLine>0)
-		{
-			tmpnbLine--;
-			
-			if(same_hash((HASH*)currline, &hash_tab[tmpnbLine])){
-				printf("FINDED - %s\n", (*title_tab)[tmpnbLine]);
-			}
-		}
+		//int tmpnbLine = nbLine;
+		//while (tmpnbLine>0)
+		//{
+			//tmpnbLine--;
+			//if(same_hash((HASH*)currline, &hash_tab[tmpnbLine])){
+				//printf("FINDED - %s\n", (*title_tab)[tmpnbLine]);
+			//}
+		//}
 
 		currline = readline(ds);
 	}
+	cudaDeviceSynchronize();
 	fclose(ds);
 	
     return 0;
