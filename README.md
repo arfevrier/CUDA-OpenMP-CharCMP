@@ -1,12 +1,22 @@
 # projetPerformSHA1
 Projet de calcul haute performance - CUDA - OpenMP
 
-Exemple:
+Exemple (attackSingleCore.c and attackSingleCoreV2.c):
 ```
-gcc -Wall -o attackSingleCoreV2 attackSingleCoreV2.c -lcrypto && time ./attackSingleCoreV2 dict.txt shadow.txt > /dev/null
+gcc -Wall -o attackSingleCoreV2 attackSingleCoreV2.c -lcrypto && time ./attackSingleCoreV2 dict.txt shadow.txt
 ```
 
 OpenMP:
 ```
-gcc -fopenmp -Wall -o attackSingleCoreV2 attackSingleCoreV2_OpenMP.c -lcrypto && time ./attackSingleCoreV2 dict.txt shadow.txt > /dev/null
+gcc -fopenmp -Wall -o attackOpenMP attackOpenMP.c && time ./attackOpenMP dict.txt shadow.txt
+```
+
+CUDA:
+```
+nvcc -o attackCUDA attackCUDA.cu && time ./attackCUDA dict.txt shadow.txt
+```
+
+C++ (attackSingleCoreV3.cpp):
+```
+g++ -Wall -o attackSingleCoreV3 attackSingleCoreV3.cpp && time ./attackSingleCoreV3 dict.txt shadow.txt
 ```
