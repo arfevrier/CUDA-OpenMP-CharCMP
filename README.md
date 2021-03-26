@@ -3,7 +3,7 @@ Projet de calcul haute performance - CUDA - OpenMP
 
 Exemple (attackSingleCore.c and attackSingleCoreV2.c):
 ```
-gcc -Wall -o attackSingleCoreV2 attackSingleCoreV2.c -lcrypto && time ./attackSingleCoreV2 dict.txt shadow.txt
+gcc -Wall -o attackSingleCoreV2 attackSingleCoreV2.c && time ./attackSingleCoreV2 dict.txt shadow.txt
 ```
 
 OpenMP:
