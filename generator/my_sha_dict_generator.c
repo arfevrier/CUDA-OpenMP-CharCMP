@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 		unsigned char hash[100];
 		SHA1(currline, length, hash);
 		
-		fprintf(fptr,"%s ",currline);
+		fprintf(fptr,"%s\t",currline);
 		int i;
 		for(i = 0; i<SHA_DIGEST_LENGTH; i++){
 

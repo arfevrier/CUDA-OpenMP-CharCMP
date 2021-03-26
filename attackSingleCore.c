@@ -67,9 +67,9 @@ int main(int argc, char *argv[]) {
 	int nbLine = 0;
 	while (currline!=NULL)
 	{
-		char *tmp = strtok(currline, " ");
+		char *tmp = strtok(currline, "\t");
 		strcpy(title_tab+(nbLine*DICT_WORD_SIZE), tmp);
-		tmp = strtok(NULL, " ");
+		tmp = strtok(NULL, "\t");
 		strcpy(hash_tab+(nbLine*DICT_HASH_SIZE), tmp);
 		//printf("%s-%s\n", title_tab+(nbLine*DICT_WORD_SIZE), hash_tab+(nbLine*DICT_HASH_SIZE));
 		nbLine++;
