@@ -7,7 +7,7 @@
 #include <string.h>
 
 #define DICT_WORD_SIZE 25
-#define DICT_HASH_SIZE 42
+#define DICT_HASH_SIZE 41
 
 //Define un HASH = 40 caractères HEXA = 20 octets = 5*DOUBLE
 typedef struct {
@@ -17,11 +17,6 @@ typedef struct {
 	double p4;
 	double p5;
 } HASH;
-
-//Check if two HASH is the same
-int same_hash(HASH* one, HASH* two){
-	return memcmp(one, two, sizeof(HASH))==0;
-}
 
 // Two fonctions which help manage files
 // --------
@@ -51,12 +46,6 @@ char * readline(FILE * f){
 int main(int argc, char *argv[]) {
 	char* dict_file = argv[1];
 	char* sha_file = argv[2];
-
-	// Convert the hash to HASH type
-	//for (size_t count = 0; count < sizeof val/sizeof *val; count++) {
-	//	sscanf(sha_hash, "%2hhx", &val[count]);
-	//	SHAtoFind += 2;
-	//}
 	
 	//Store each line in an array
 	char* title_tab = malloc(sizeof(char)*DICT_WORD_SIZE*22740);
