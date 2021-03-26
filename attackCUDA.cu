@@ -105,8 +105,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	//Start the GPU
-	dim3 dimBlock(32, 32);
-	dim3 dimGrid(32, 32);
+	dim3 dimBlock(16, 16);
+	dim3 dimGrid(16, 16);
 	gpu<<<dimGrid, dimBlock>>>(shadow_tab, hash_tab, result);
 	cudaDeviceSynchronize();
 
