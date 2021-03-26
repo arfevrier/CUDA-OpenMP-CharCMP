@@ -9,15 +9,6 @@
 #define DICT_WORD_SIZE 25
 #define DICT_HASH_SIZE 41
 
-//Define un HASH = 40 caractères HEXA = 20 octets = 5*DOUBLE
-typedef struct {
-	double p1;
-	double p2;
-	double p3;
-	double p4;
-	double p5;
-} HASH;
-
 // Two fonctions which help manage files
 // --------
 FILE* openFile(char* url){

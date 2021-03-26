@@ -12,11 +12,11 @@ typedef char TITLES[DICT_LENGHT][DICT_WORD_SIZE];
 
 //Define un HASH = 40 caractères = 5*DOUBLE de 8 octets
 typedef struct {
-	double p1;
-	double p2;
-	double p3;
-	double p4;
-	double p5;
+	long long p1;
+	long long p2;
+	long long p3;
+	long long p4;
+	long long p5;
 } HASH;
 
 //Check if two HASH is the same
