@@ -51,15 +51,14 @@ char * readline(FILE * f){
 // --------
 
 //Lets define the CUDA fonction
-__global__ void gpu(HASH* shadow_tab, HASH* hash_tab, TITLES* title_tab){
+__global__ void gpu(HASH* shadow_tab, HASH* hash_tab, char* result){
 	int x = blockIdx.x * blockDim.x + threadIdx.x;
 	int y = blockIdx.y * blockDim.y + threadIdx.y;
 	int stride = blockDim.x * gridDim.x;
-	int i, j;
-	for (i = x; i < 22740; i += stride){
-		for (j = y; j < 22740; j += stride){
+	for (int i = x; i < DICT_LENGHT; i += stride){
+		for (int j = y; j < DICT_LENGHT; j += stride){
 			if(same_hash(&shadow_tab[i], &hash_tab[j])){
-				printf("FINDED - %s\n", (*title_tab)[j]);
+				result[i]=1;
 			}
 		}
 	}
@@ -67,29 +66,23 @@ __global__ void gpu(HASH* shadow_tab, HASH* hash_tab, TITLES* title_tab){
 
 
 // The crack executable take the dict file and the hash in parameter
-// ./crack dict.txt shadow.txt
 int main(int argc, char *argv[]) {
 	char* dict_file = argv[1];
 	char* sha_file = argv[2];
-
-	// Convert the hash to HASH type
-	//for (size_t count = 0; count < sizeof val/sizeof *val; count++) {
-	//	sscanf(sha_hash, "%2hhx", &val[count]);
-	//	SHAtoFind += 2;
-	//}
 	
 	//Store each line in an array
-	TITLES* title_tab; cudaMallocManaged(&title_tab, sizeof(TITLES));
-	HASH* hash_tab; cudaMallocManaged(&hash_tab, sizeof(HASH)*22740);
+	TITLES* title_tab = (TITLES*)malloc(sizeof(TITLES));
+	HASH* hash_tab; cudaMallocManaged(&hash_tab, sizeof(HASH)*DICT_LENGHT);
+	char* result; cudaMallocManaged(&result, sizeof(char)*DICT_LENGHT); memset(result, 0, sizeof(char)*DICT_LENGHT);
 	
 	FILE * ds = openFile(dict_file);
 	char *currline = readline(ds);
 	int nbLine = 0;
 	while (currline!=NULL)
 	{
-		char *tmp = strtok(currline, " ");
+		char *tmp = strtok(currline, "\t");
 		strcpy((*title_tab)[nbLine], tmp);
-		tmp = strtok(NULL, " ");
+		tmp = strtok(NULL, "\t");
 		memcpy(&hash_tab[nbLine], tmp, sizeof(HASH));
 		//printf("%s-%s\n", title_tab+(nbLine*DICT_WORD_SIZE), hash_tab+(nbLine*DICT_HASH_SIZE));
 		nbLine++;
@@ -99,7 +92,7 @@ int main(int argc, char *argv[]) {
 	fclose(ds);
 	
 	//Store each hash to find in an array
-	HASH* shadow_tab; cudaMallocManaged(&shadow_tab, sizeof(HASH)*22740);
+	HASH* shadow_tab; cudaMallocManaged(&shadow_tab, sizeof(HASH)*DICT_LENGHT);
 	ds = openFile(sha_file);
 	currline = readline(ds);
 	nbLine = 0;
@@ -112,11 +105,16 @@ int main(int argc, char *argv[]) {
 	}
 
 	//Start the GPU
-	dim3 dimBlock(16, 16);
-	dim3 dimGrid(16, 16);
-	gpu<<<dimGrid, dimBlock>>>(shadow_tab, hash_tab, title_tab);
+	dim3 dimBlock(32, 32);
+	dim3 dimGrid(32, 32);
+	gpu<<<dimGrid, dimBlock>>>(shadow_tab, hash_tab, result);
 	cudaDeviceSynchronize();
-	fclose(ds);
-	
+
+	//Print the final result
+	for(int i=0;i<22740;i++){
+		if(result[i]==1) printf("FINDED - %s\n", (*title_tab)[i]);
+	}
+
+	fclose(ds);	
     return 0;
 }
