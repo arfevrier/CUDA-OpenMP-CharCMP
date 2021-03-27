@@ -8,7 +8,7 @@
 
 #define DICT_WORD_SIZE 25
 #define DICT_LENGHT 22740
-#define NUM_THREADS 4
+#define NUM_THREADS 3
 
 typedef char TITLES[DICT_LENGHT][DICT_WORD_SIZE];
 
@@ -58,6 +58,8 @@ char * readline(FILE * f){
 int main(int argc, char *argv[]) {
 	char* dict_file = argv[1];
 	char* sha_file = argv[2];
+	char* result = malloc(sizeof(char)*DICT_LENGHT);
+	int i = 0;
 
 	// Convert the hash to HASH type
 	//for (size_t count = 0; count < sizeof val/sizeof *val; count++) {
@@ -85,13 +87,12 @@ int main(int argc, char *argv[]) {
 	}
 	fclose(ds);
 
+
 	ds = openFile(sha_file);
-	int i = 0;
-
-
+	
 	// ----- OpenMP -----
 	omp_set_num_threads(NUM_THREADS);
-	#pragma omp parallel for default(none) private(i, currline) shared(hash_tab, nbLine, ds, title_tab)
+	#pragma omp parallel for default(none) private(i, currline) shared(hash_tab, nbLine, ds, title_tab, result)
 	for(i=0; i<DICT_LENGHT; i++){
 		#pragma omp critical
 		{
@@ -108,17 +109,21 @@ int main(int argc, char *argv[]) {
 			for(tmpnbLine = nbLine; tmpnbLine>0; tmpnbLine--)
 			{
 				if(same_hash((HASH*)currline, &hash_tab[tmpnbLine])){
-					printf("FOUND - %s\n", (*title_tab)[tmpnbLine]);
+					result[i]=1;
 				}
 			}
 			//}
 
 		}
 	}
-	printf("Number of Threads : %i", NUM_THREADS);
 	// ------------------
+	//Print the final result
+	for(int i=0;i<22740;i++){
+		if(result[i]==1) printf("FINDED - %s\n", (*title_tab)[i]);
+	}
 	
 	fclose(ds);
+	printf("Number of Threads : %i", NUM_THREADS);
 	
     return 0;
 }
