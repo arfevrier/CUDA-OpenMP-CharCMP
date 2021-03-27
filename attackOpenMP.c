@@ -86,31 +86,33 @@ int main(int argc, char *argv[]) {
 	fclose(ds);
 
 	ds = openFile(sha_file);
-	currline = readline(ds);
+	int i = 0;
 
 
 	// ----- OpenMP -----
 	omp_set_num_threads(NUM_THREADS);
-	while (currline!=NULL)
-	{
-		// For each line, check if the hash of the dict is the same
-		int tmpnbLine = nbLine;
-
-		#pragma omp parallel private(tmpnbLine) shared(hash_tab, currline)
+	#pragma omp parallel for default(none) private(i, currline) shared(hash_tab, nbLine, ds, title_tab)
+	for(i=0; i<DICT_LENGHT; i++){
+		#pragma omp critical
 		{
-			#pragma omp for
+			currline = readline(ds);
+		}
+
+		if(currline!=NULL){
+			// printf("Element %s traité par le thread %d \n",currline,omp_get_thread_num());
+			// For each line, check if the hash of the dict is the same
+			int tmpnbLine = nbLine;
+
+			//#pragma omp critical // With this critical zone we get 22739 results
+			//{
 			for(tmpnbLine = nbLine; tmpnbLine>0; tmpnbLine--)
-			{			
+			{
 				if(same_hash((HASH*)currline, &hash_tab[tmpnbLine])){
-					// printf("FINDED - %s\n", (*title_tab)[tmpnbLine]);
+					printf("FOUND - %s\n", (*title_tab)[tmpnbLine]);
 				}
 			}
-			
-			#pragma omp critical
-			{
-				// Thread safe region
-				currline = readline(ds);
-			}
+			//}
+
 		}
 	}
 	printf("Number of Threads : %i", NUM_THREADS);
