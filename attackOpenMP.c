@@ -59,13 +59,6 @@ int main(int argc, char *argv[]) {
 	char* dict_file = argv[1];
 	char* sha_file = argv[2];
 	char* result = malloc(sizeof(char)*DICT_LENGHT);
-	int i = 0;
-
-	// Convert the hash to HASH type
-	//for (size_t count = 0; count < sizeof val/sizeof *val; count++) {
-	//	sscanf(sha_hash, "%2hhx", &val[count]);
-	//	SHAtoFind += 2;
-	//}
 	
 	//Store each line in an array
 	TITLES* title_tab = malloc(sizeof(TITLES));
@@ -102,13 +95,12 @@ int main(int argc, char *argv[]) {
 	
 	// ----- OpenMP -----
 	omp_set_num_threads(NUM_THREADS);
-	#pragma omp parallel for default(none) private(i) shared(hash_tab, shadow_tab, nbLine, title_tab, result)
-	for(i=0; i<DICT_LENGHT; i++){
-		// printf("Element %s traité par le thread %d \n",currline,omp_get_thread_num());
+	#pragma omp parallel for shared(hash_tab, shadow_tab, result)
+	for(int i=0; i<DICT_LENGHT; i++){
 		// For each line, check if the hash of the dict is the same
 		int tmpnbLine = nbLine;
 
-		for(tmpnbLine = nbLine; tmpnbLine>0; tmpnbLine--)
+		for(tmpnbLine = nbLine; tmpnbLine>=0; tmpnbLine--)
 		{
 			if(same_hash(&shadow_tab[i], &hash_tab[tmpnbLine])){
 				result[i]=1;
@@ -122,8 +114,6 @@ int main(int argc, char *argv[]) {
 		if(result[i]==1) printf("FINDED - %s\n", (*title_tab)[i]);
 	}
 	
-	fclose(ds);
-	printf("Number of Threads : %i", NUM_THREADS);
-	
+	fclose(ds);	
     return 0;
 }

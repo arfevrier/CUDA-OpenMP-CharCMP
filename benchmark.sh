@@ -12,16 +12,16 @@ do
 gcc -Wall -o attackSingleCoreV2 attackSingleCoreV2.c && time ./attackSingleCoreV2 dict.txt shadow.txt > /dev/null
 done
 
-echo "CUDA comparaison"
-for i in {1..4}
-do
-nvcc -o attackCUDA attackCUDA.cu && time ./attackCUDA dict.txt shadow.txt > /dev/null
-done
-
 echo "OpenMD comparaison"
 for i in {1..4}
 do
 gcc -fopenmp -Wall -o attackOpenMP attackOpenMP.c && time ./attackOpenMP dict.txt shadow.txt > /dev/null
+done
+
+echo "CUDA comparaison"
+for i in {1..4}
+do
+nvcc -o attackCUDA attackCUDA.cu && time ./attackCUDA dict.txt shadow.txt > /dev/null
 done
 
 echo "[Hors Projet] Single core V3 (Table de hashage avec un arbre binaire)"
