@@ -8,7 +8,7 @@
 
 #define DICT_WORD_SIZE 25
 #define DICT_LENGHT 22740
-#define NUM_THREADS 3
+#define NUM_THREADS 4
 
 typedef char TITLES[DICT_LENGHT][DICT_WORD_SIZE];
 
@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
 	//Store each line in an array
 	TITLES* title_tab = malloc(sizeof(TITLES));
 	HASH* hash_tab = malloc(sizeof(HASH)*22740);
+	HASH* shadow_tab = malloc(sizeof(HASH)*DICT_LENGHT);
 	
 	FILE * ds = openFile(dict_file);
 	char *currline = readline(ds);
@@ -87,38 +88,37 @@ int main(int argc, char *argv[]) {
 	}
 	fclose(ds);
 
-
 	ds = openFile(sha_file);
+	currline = readline(ds);
+	nbLine = 0;
+	while (currline!=NULL)
+	{
+		memcpy(&shadow_tab[nbLine], currline, sizeof(HASH));	
+		nbLine++;		
+
+		currline = readline(ds);
+	}
+	
 	
 	// ----- OpenMP -----
 	omp_set_num_threads(NUM_THREADS);
-	#pragma omp parallel for default(none) private(i, currline) shared(hash_tab, nbLine, ds, title_tab, result)
+	#pragma omp parallel for default(none) private(i) shared(hash_tab, shadow_tab, nbLine, title_tab, result)
 	for(i=0; i<DICT_LENGHT; i++){
-		#pragma omp critical
+		// printf("Element %s traité par le thread %d \n",currline,omp_get_thread_num());
+		// For each line, check if the hash of the dict is the same
+		int tmpnbLine = nbLine;
+
+		for(tmpnbLine = nbLine; tmpnbLine>0; tmpnbLine--)
 		{
-			currline = readline(ds);
-		}
-
-		if(currline!=NULL){
-			// printf("Element %s traité par le thread %d \n",currline,omp_get_thread_num());
-			// For each line, check if the hash of the dict is the same
-			int tmpnbLine = nbLine;
-
-			//#pragma omp critical // With this critical zone we get 22739 results
-			//{
-			for(tmpnbLine = nbLine; tmpnbLine>0; tmpnbLine--)
-			{
-				if(same_hash((HASH*)currline, &hash_tab[tmpnbLine])){
-					result[i]=1;
-				}
+			if(same_hash(&shadow_tab[i], &hash_tab[tmpnbLine])){
+				result[i]=1;
 			}
-			//}
-
 		}
 	}
 	// ------------------
+
 	//Print the final result
-	for(int i=0;i<22740;i++){
+	for(int i=0;i<DICT_LENGHT;i++){
 		if(result[i]==1) printf("FINDED - %s\n", (*title_tab)[i]);
 	}
 	
