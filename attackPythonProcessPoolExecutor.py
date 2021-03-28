@@ -3,30 +3,32 @@ import time
 
 
 NB_THREAD = 4
+shadow_file = open("shadow.txt", "r")
+dict_file = open("dict.txt", "r")
+hashes_to_crack = []
+for line in shadow_file:
+    hashes_to_crack.append(line)
 
 
 # Returns True if the hashes are the same
-def same_hash(dict_hash, shadow):
-    return dict_hash in shadow
+def same_hash(dict_hash):
+    for line in hashes_to_crack:
+        if dict_hash == line:
+            hashes_to_crack.remove(line)
+            return True
+    return False
 
 
 def main():
-    dict_file = open("dict.txt", "r")
-    shadow_file = open("shadow.txt", "r")
-
     my_dict = []
     for line in dict_file:
         tmp = line.split("\t")
         my_dict.append(tmp[1])
 
-    my_hashes_to_crack = []
-    for line in shadow_file:
-        my_hashes_to_crack.append(line)
-
     start = time.perf_counter()
     # Number of threads : max_workers
     with concurrent.futures.ProcessPoolExecutor(max_workers=NB_THREAD) as executor:
-        results = executor.map(same_hash, my_dict, [my_hashes_to_crack]*len(my_dict))
+        results = executor.map(same_hash, my_dict)
     finish = time.perf_counter()
 
     # Count the number of correct guesses
