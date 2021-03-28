@@ -12,7 +12,10 @@ for line in shadow_file:
 
 # Returns True if the hashes are the same
 def same_hash(dict_hash):
-    return dict_hash in hashes_to_crack
+    for line in hashes_to_crack:
+        if dict_hash == line:
+            return True
+    return False
 
 
 def main():
