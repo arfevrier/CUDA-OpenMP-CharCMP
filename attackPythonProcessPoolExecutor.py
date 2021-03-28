@@ -2,7 +2,7 @@ import concurrent.futures
 import time
 
 
-NB_THREAD = 4
+NB_THREAD = 2
 shadow_file = open("shadow.txt", "r")
 dict_file = open("dict.txt", "r")
 hashes_to_crack = []
@@ -12,11 +12,7 @@ for line in shadow_file:
 
 # Returns True if the hashes are the same
 def same_hash(dict_hash):
-    for line in hashes_to_crack:
-        if dict_hash == line:
-            hashes_to_crack.remove(line)
-            return True
-    return False
+    return  dict_hash in hashes_to_crack
 
 
 def main():
