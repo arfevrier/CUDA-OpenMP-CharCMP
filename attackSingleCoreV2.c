@@ -10,7 +10,7 @@
 
 typedef char TITLES[DICT_LENGHT][DICT_WORD_SIZE];
 
-//Define un HASH = 40 caractères = 5*DOUBLE de 8 octets
+//Define un HASH = 40 caractères = 5*LONG de 8 octets
 typedef struct {
 	long long p1;
 	long long p2;
