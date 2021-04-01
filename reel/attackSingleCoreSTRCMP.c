@@ -4,12 +4,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
-#include <omp.h>
 
 #define DICT_WORD_SIZE 25
 #define DICT_BATCH_LENGHT 22740
 #define MAX_READ_SIZE 10000
-#define NUM_THREADS 4
 
 typedef char TITLES[MAX_READ_SIZE][DICT_WORD_SIZE];
 
@@ -58,6 +56,7 @@ char * readline(FILE * f){
 int main(int argc, char *argv[]) {
 	char* dict_file = argv[1];
 	char* sha_file = argv[2];
+	char* result = malloc(sizeof(char)*DICT_BATCH_LENGHT);
 
 	HASH* sha_tab = malloc(sizeof(HASH)*DICT_BATCH_LENGHT);
 	FILE* ds = openFile(sha_file);
@@ -78,7 +77,6 @@ int main(int argc, char *argv[]) {
 		//Store each line in an array
 		TITLES* title_tab = malloc(sizeof(TITLES));
 		HASH* hash_tab = malloc(sizeof(HASH)*MAX_READ_SIZE);
-		char* result = malloc(sizeof(char)*MAX_READ_SIZE); memset(result, 0, sizeof(char)*MAX_READ_SIZE);
 		for(int j=0;j<MAX_READ_SIZE;j++){
 			currline = readline(ds);
 			char *tmp = strtok(currline, "\t");
@@ -87,20 +85,15 @@ int main(int argc, char *argv[]) {
 			memcpy(&hash_tab[j], tmp, sizeof(HASH));
 		}
 
-		// ----- OpenMP -----
-		omp_set_num_threads(NUM_THREADS);
-		int a = 0;
-		int b = 0;
-		#pragma omp parallel for default(none) private(a, b) shared(hash_tab, sha_tab, result)
-		for(a=0;a<DICT_BATCH_LENGHT;a++){
-			for(b=0;b<MAX_READ_SIZE;b++){
+		for(int a=0;a<DICT_BATCH_LENGHT;a++){
+			for(int b=0;b<MAX_READ_SIZE;b++){
 				if(same_hash(&sha_tab[a], &hash_tab[b])){
 					result[b]=1;
 				}
 			}
 		}
 		//Print the result for this batch
-	 	for(int i=0;i<MAX_READ_SIZE;i++){
+	 	for(int i=0;i<DICT_BATCH_LENGHT;i++){
 			if(result[i]==1) printf("FINDED - %s\n", (*title_tab)[i]);
 		}
 
