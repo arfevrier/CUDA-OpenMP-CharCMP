@@ -8,6 +8,7 @@
 #define DICT_WORD_SIZE 25
 #define DICT_LENGHT 22740
 #define MAX_READ_SIZE 10000
+#define NBCUDA 3
 
 typedef char TITLES[MAX_READ_SIZE][DICT_WORD_SIZE];
 
@@ -100,8 +101,8 @@ int main(int argc, char *argv[]) {
 		}
 
 		//Start the GPU
-		dim3 dimBlock(16, 16);
-		dim3 dimGrid(16, 16);
+		dim3 dimBlock(NBCUDA, NBCUDA);
+		dim3 dimGrid(NBCUDA, NBCUDA);
 		gpu<<<dimGrid, dimBlock>>>(sha_tab, hash_tab, result);
 		cudaDeviceSynchronize();
 

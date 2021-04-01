@@ -85,7 +85,18 @@ int main(int argc, char *argv[]) {
 			memcpy(&hash_tab[j], tmp, sizeof(HASH));
 		}
 
-		
+		for(int a=0;a<DICT_BATCH_LENGHT;a++){
+			for(int b=0;b<MAX_READ_SIZE;b++){
+				if(same_hash(&sha_tab[a], &hash_tab[b])){
+					result[b]=1;
+					// printf("FINDED - %s\n", (*title_tab)[b]);
+				}
+			}
+		}
+		//Print the result for this batch
+	 	for(int i=0;i<DICT_BATCH_LENGHT;i++){
+			if(result[i]==1) printf("FINDED - %s\n", (*title_tab)[i]);
+		}
 
 		free(title_tab);
 		free(hash_tab);

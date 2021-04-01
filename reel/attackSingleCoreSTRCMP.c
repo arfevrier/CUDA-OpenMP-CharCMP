@@ -22,11 +22,7 @@ typedef struct {
 
 //Check if two HASH is the same
 int same_hash(HASH* one, HASH* two){
-	return one->p1==two->p1 &&
-	       one->p2==two->p2 &&
-	       one->p3==two->p3 &&
-	       one->p4==two->p4 &&
-	       one->p5==two->p5;
+	return strncmp((char*)one, (char*)two, 40)==0;
 }
 
 // Two fonctions which help manage files
