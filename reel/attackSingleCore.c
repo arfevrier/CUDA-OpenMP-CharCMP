@@ -6,7 +6,7 @@
 #include <string.h>
 
 #define DICT_WORD_SIZE 25
-#define DICT_LENGHT 22740
+#define DICT_BATCH_LENGHT 22740
 #define MAX_READ_SIZE 10000
 
 typedef char TITLES[MAX_READ_SIZE][DICT_WORD_SIZE];
@@ -56,8 +56,9 @@ char * readline(FILE * f){
 int main(int argc, char *argv[]) {
 	char* dict_file = argv[1];
 	char* sha_file = argv[2];
+	char* result = malloc(sizeof(char)*DICT_BATCH_LENGHT);
 
-	HASH* sha_tab = malloc(sizeof(HASH)*DICT_LENGHT);
+	HASH* sha_tab = malloc(sizeof(HASH)*DICT_BATCH_LENGHT);
 	FILE* ds = openFile(sha_file);
 	char* currline = readline(ds);
 	int nbLine = 0;
@@ -84,13 +85,19 @@ int main(int argc, char *argv[]) {
 			memcpy(&hash_tab[j], tmp, sizeof(HASH));
 		}
 
-		for(int a=0;a<DICT_LENGHT;a++){
+		for(int a=0;a<DICT_BATCH_LENGHT;a++){
 			for(int b=0;b<MAX_READ_SIZE;b++){
 				if(same_hash(&sha_tab[a], &hash_tab[b])){
-					printf("FINDED - %s\n", (*title_tab)[b]);
+					result[b]=1;
+					// printf("FINDED - %s\n", (*title_tab)[b]);
 				}
 			}
 		}
+		//Print the result for this batch
+	 	for(int i=0;i<DICT_BATCH_LENGHT;i++){
+			if(result[i]==1) printf("FINDED - %s\n", (*title_tab)[i]);
+		}
+
 		free(title_tab);
 		free(hash_tab);
 	}
