@@ -53,30 +53,20 @@ char * readline(FILE * f){
 
 
 // The crack executable take the dict file and the hash in parameter
+// ./crack dict.txt 3b1fe340dba76bf37270abad774f327f50b5e1d8
 int main(int argc, char *argv[]) {
 	char* dict_file = argv[1];
-	char* sha_file = argv[2];
-	char* result = malloc(sizeof(char)*DICT_BATCH_LENGHT);
-
-	HASH* sha_tab = malloc(sizeof(HASH)*DICT_BATCH_LENGHT);
-	FILE* ds = openFile(sha_file);
-	char* currline = readline(ds);
-	int nbLine = 0;
-	while (currline!=NULL)
-	{
-		memcpy(&sha_tab[nbLine], currline, sizeof(HASH));
-		nbLine++;
-
-		currline = readline(ds);
-	}
-	fclose(ds);
+	HASH* sha_file = (HASH*)argv[2];
+	char* currline;
+	
 	
 
-	ds = openFile(dict_file);	
-	for(int i=0;i<1;i++){
+	FILE* ds = openFile(dict_file);	
+	for(int i=0;i<52;i++){
 		//Store each line in an array
 		TITLES* title_tab = malloc(sizeof(TITLES));
 		HASH* hash_tab = malloc(sizeof(HASH)*MAX_READ_SIZE);
+		char* result = malloc(sizeof(char)*DICT_BATCH_LENGHT); memset(result, 0, sizeof(char)*MAX_READ_SIZE);
 		for(int j=0;j<MAX_READ_SIZE;j++){
 			currline = readline(ds);
 			char *tmp = strtok(currline, "\t");
@@ -85,14 +75,14 @@ int main(int argc, char *argv[]) {
 			memcpy(&hash_tab[j], tmp, sizeof(HASH));
 		}
 
-		for(int a=0;a<DICT_BATCH_LENGHT;a++){
+		
 			for(int b=0;b<MAX_READ_SIZE;b++){
-				if(same_hash(&sha_tab[a], &hash_tab[b])){
+				if(same_hash(sha_file, &hash_tab[b])){
 					result[b]=1;
-					// printf("FINDED - %s\n", (*title_tab)[b]);
+					
 				}
 			}
-		}
+		
 		//Print the result for this batch
 	 	for(int i=0;i<MAX_READ_SIZE;i++){
 			if(result[i]==1) printf("FINDED - %s\n", (*title_tab)[i]);
