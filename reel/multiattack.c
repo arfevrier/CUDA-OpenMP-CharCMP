@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
 
 
     int n = 0;
+    int i = 0;
     while (current_password_to_analyse!=NULL)
 	{
 	  for ( ; current_checker_running < MAX_FILS ; )
@@ -56,7 +57,10 @@ int main(int argc, char *argv[]) {
 			current_checker_running++;
 			//printf("[INFO] Started  %dth son searching for password %s\n", current_checker_running, current_password_to_analyse);
 			current_password_to_analyse = readline(ds);
-
+			i++;
+			if(i>=10000){
+				exit(0);
+			}
 			  }
 			else { // son code.
 				execl("/home/arnaud/projetPerformSHA1/reel/crack", "crack", dict_file, current_password_to_analyse, NULL);
