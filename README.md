@@ -1,5 +1,5 @@
 # projetPerformSHA1
-Projet de calcul haute performance - CUDA - OpenMP
+Comparaison de caractère - Benchmark OpenMP/CUDA - Projet de Calcul Haute Performance
 
 Exemple (attackSingleCore.c and attackSingleCoreV2.c):
 ```
