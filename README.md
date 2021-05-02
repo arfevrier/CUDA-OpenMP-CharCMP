@@ -1,4 +1,4 @@
-# projetPerformSHA1
+# CUDA-OpenMP-CharCMP
 Comparaison de caractère - Benchmark OpenMP/CUDA - Projet de Calcul Haute Performance
 
 Exemple (attackSingleCore.c and attackSingleCoreV2.c):
